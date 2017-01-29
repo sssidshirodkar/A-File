@@ -1,10 +1,12 @@
-package com.collge.afile;
+package com.collge.afile.ui;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.collge.afile.R;
 
 public class FileViewHolders extends RecyclerView.ViewHolder implements View.OnClickListener{
 

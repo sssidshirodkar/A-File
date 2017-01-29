@@ -1,12 +1,16 @@
-package com.collge.afile;
+package com.collge.afile.ui;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +22,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
+
+import com.collge.afile.R;
+import com.collge.afile.util.ToastUtil;
+import com.collge.afile.pojo.Item;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -52,7 +60,7 @@ public class FileActivity extends AppCompatActivity {
     RecyclerView rView;
     FileAdapter rcAdapter;
     String title = "root";
-
+    final int THUMBSIZE = 64;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +182,7 @@ public class FileActivity extends AppCompatActivity {
                     Log.d("DIRECTORY", fileList.get(i).file);
                 } else {
                     Log.d("FILE", fileList.get(i).file);
+//                    fileList.get(i).setThumbnail(getThumbnail(sel.getAbsolutePath()));
                 }
             }
 
@@ -211,8 +220,16 @@ public class FileActivity extends AppCompatActivity {
             MimeTypeMap myMime = MimeTypeMap.getSingleton();
             Intent newIntent = new Intent(Intent.ACTION_VIEW);
             String mimeType = myMime.getMimeTypeFromExtension(fileExt(sel.getAbsolutePath()));
-            newIntent.setDataAndType(Uri.fromFile(sel), mimeType);
+            /**
+             * following line commented since If your targetSdkVersion is 24 or higher, we have to use FileProvider
+             * class to give access to the particular file or folder to make them accessible for other apps.
+             * and add extra flag "FLAG_GRANT_READ_URI_PERMISSION".
+             */
+//            newIntent.setDataAndType(Uri.fromFile(sel), mimeType);
+            Uri photoURI = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", sel.getAbsoluteFile());
+            newIntent.setDataAndType(photoURI, mimeType);
             newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            newIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try {
                 startActivity(newIntent);
             } catch (ActivityNotFoundException e) {
@@ -284,5 +301,15 @@ public class FileActivity extends AppCompatActivity {
             }, 2000);
 
         }
+    }
+
+    private Bitmap getThumbnail(String imagePath) {
+        try {
+            return ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath),
+                    THUMBSIZE, THUMBSIZE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-package com.collge.afile;
+package com.collge.afile.ui;
 
 /**
  * Created by Siddhesh on 25-Jan-17.
