@@ -50,7 +50,7 @@ public class FileActivity extends AppCompatActivity {
     public List<Item> fileList;
     private File path = new File(Environment.getExternalStorageDirectory() + "");
     RecyclerView rView;
-    RecyclerViewAdapter rcAdapter;
+    FileAdapter rcAdapter;
     String title = "root";
 
 
@@ -75,7 +75,7 @@ public class FileActivity extends AppCompatActivity {
         rView.setHasFixedSize(true);
         rView.setLayoutManager(gridLayoutManager);
 
-        rcAdapter = new RecyclerViewAdapter(FileActivity.this, fileList);
+        rcAdapter = new FileAdapter(FileActivity.this, fileList);
         rView.setAdapter(rcAdapter);
         rView.addOnItemTouchListener(new RecyclerItemClickListener(this, rView, new RecyclerItemClickListener.OnItemClickListener() {
             @Override

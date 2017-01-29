@@ -8,28 +8,28 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolders> {
+public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
 
     private List<Item> itemList;
     private Context context;
 
-    public RecyclerViewAdapter(Context context, List<Item> itemList) {
+    public FileAdapter(Context context, List<Item> itemList) {
         this.itemList = itemList;
         this.context = context;
     }
 
     @Override
-    public RecyclerViewHolders onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FileViewHolders onCreateViewHolder(ViewGroup parent, int viewType) {
 
         int layout = ((FileActivity) context).isViewManagerType() ? R.layout.layout_list_view : R.layout.layout_grid_view;
 
         View layoutView = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-        RecyclerViewHolders rcv = new RecyclerViewHolders(layoutView);
+        FileViewHolders rcv = new FileViewHolders(layoutView);
         return rcv;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerViewHolders holder, int position) {
+    public void onBindViewHolder(FileViewHolders holder, int position) {
         holder.countryName.setText(itemList.get(position).toString().trim());
         holder.countryPhoto.setImageResource(itemList.get(position).icon);
     }

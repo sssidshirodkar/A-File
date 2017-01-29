@@ -6,12 +6,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RecyclerViewHolders extends RecyclerView.ViewHolder implements View.OnClickListener{
+public class FileViewHolders extends RecyclerView.ViewHolder implements View.OnClickListener{
 
     public TextView countryName;
     public ImageView countryPhoto;
 
-    public RecyclerViewHolders(View itemView) {
+    public FileViewHolders(View itemView) {
         super(itemView);
         itemView.setOnClickListener(this);
         countryName = (TextView)itemView.findViewById(R.id.country_name);
