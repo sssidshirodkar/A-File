@@ -14,11 +14,12 @@
 
         <ImageView
             android:id="@+id/country_photo"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:contentDescription="@string/action_settings"
             android:src="@mipmap/folder_empty"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:layout_centerHorizontal="true"/>
 
         <TextView
             android:id="@+id/country_name"

@@ -9,7 +9,11 @@ import android.graphics.Bitmap;
 public class Item {
     public String file;
     public int icon;
-    Bitmap thumbnail = null;
+    /**
+     * 0 : Folder
+     * 1 : File
+     */
+    public int type = 1;
 
     public Item(String file, Integer icon) {
         this.file = file;
@@ -21,11 +25,11 @@ public class Item {
         return file;
     }
 
-    public Bitmap getThumbnail() {
-        return thumbnail;
+    public int getType() {
+        return type;
     }
 
-    public void setThumbnail(Bitmap thumbnail) {
-        this.thumbnail = thumbnail;
+    public void setType(int type) {
+        this.type = type;
     }
 }

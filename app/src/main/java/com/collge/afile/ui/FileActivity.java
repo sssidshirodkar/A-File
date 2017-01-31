@@ -24,6 +24,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.collge.afile.R;
+import com.collge.afile.util.FileType;
 import com.collge.afile.util.ToastUtil;
 import com.collge.afile.pojo.Item;
 
@@ -56,7 +57,12 @@ public class FileActivity extends AppCompatActivity {
     private static final String TAG = "F_PATH";
 
     public List<Item> fileList;
+
     private File path = new File(Environment.getExternalStorageDirectory() + "");
+    public File getPath() {
+        return path;
+    }
+
     RecyclerView rView;
     FileAdapter rcAdapter;
     String title = "root";
@@ -179,6 +185,7 @@ public class FileActivity extends AppCompatActivity {
                 // Set drawables
                 if (sel.isDirectory()) {
                     fileList.get(i).icon = R.mipmap.folder_empty;
+                    fileList.get(i).type = FileType.FOLDER;
                     Log.d("DIRECTORY", fileList.get(i).file);
                 } else {
                     Log.d("FILE", fileList.get(i).file);

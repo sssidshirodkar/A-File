@@ -1,6 +1,7 @@
 package com.collge.afile.ui;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,10 @@ import android.view.ViewGroup;
 
 import com.collge.afile.R;
 import com.collge.afile.pojo.Item;
+import com.collge.afile.util.FileType;
+import com.collge.afile.util.ImageLoader;
 
+import java.io.File;
 import java.util.List;
 
 public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
@@ -35,14 +39,26 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
     public void onBindViewHolder(FileViewHolders holder, int position) {
         Item item = itemList.get(position);
         holder.countryName.setText(item.toString().trim());
-//        if(item.getThumbnail() != null)
-//            holder.countryPhoto.setImageBitmap(item.getThumbnail());
-//        else
-            holder.countryPhoto.setImageResource(item.icon);
+        String path =  ((FileActivity) context).getPath() + File.separator + item.toString();
+        if(item.getType() == FileType.FOLDER)
+            ImageLoader.getInstance().loadImage(R.mipmap.folder_empty, holder.countryPhoto);
+        else
+            ImageLoader.getInstance().loadImage(Uri.fromFile(new File(path)), getPlaceHolder(item.getType()), R.mipmap.file, holder.countryPhoto);
     }
 
     @Override
     public int getItemCount() {
         return this.itemList.size();
+    }
+
+    private int getPlaceHolder(int fileType){
+        switch (fileType){
+            case FileType.FILE:
+                return R.mipmap.file;
+
+            case FileType.FOLDER:
+                return R.mipmap.folder_empty;
+        }
+        return FileType.FILE;
     }
 }
