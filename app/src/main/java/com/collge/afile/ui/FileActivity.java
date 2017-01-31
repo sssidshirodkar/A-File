@@ -24,6 +24,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.collge.afile.R;
+import com.collge.afile.presenter.FilePresenter;
 import com.collge.afile.util.FileType;
 import com.collge.afile.util.ToastUtil;
 import com.collge.afile.pojo.Item;
@@ -33,7 +34,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileActivity extends AppCompatActivity {
+public class FileActivity extends AppCompatActivity implements FilePresenter.View{
 
     private GridLayoutManager gridLayoutManager;
     private LinearLayoutManager linearLayoutManager;
@@ -54,7 +55,7 @@ public class FileActivity extends AppCompatActivity {
     private Boolean firstLevel = true;
     boolean doubleBackToExitPressedOnce = false;
 
-    private static final String TAG = "F_PATH";
+    private final String TAG = "F_PATH";
 
     public List<Item> fileList;
 
@@ -66,12 +67,18 @@ public class FileActivity extends AppCompatActivity {
     RecyclerView rView;
     FileAdapter rcAdapter;
     String title = "root";
-    final int THUMBSIZE = 64;
+    /**
+     * used to identify the view is ready for update
+     */
+    boolean isReady = false;
+    FilePresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file);
+        isReady = true;
+
         Toolbar topToolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(topToolBar);
 //        topToolBar.setLogo(R.drawable.logo);
@@ -81,7 +88,11 @@ public class FileActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
 
         fileList = new ArrayList<>();
-        loadFileList();
+
+        presenter = new FilePresenter();
+        presenter.setView(this);
+        presenter.loadFileList(path, fileList);
+
         gridLayoutManager = new GridLayoutManager(FileActivity.this, 3);
         linearLayoutManager = new LinearLayoutManager(FileActivity.this);
 
@@ -103,6 +114,18 @@ public class FileActivity extends AppCompatActivity {
                 // do whatever
             }
         }));
+    }
+
+    @Override
+    protected void onResume() {
+        isReady = true;
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        isReady = false;
+        super.onPause();
     }
 
     private void updateList() {
@@ -155,55 +178,55 @@ public class FileActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private List<Item> loadFileList() {
-        try {
-            path.mkdirs();
-        } catch (SecurityException e) {
-            Log.e(TAG, "unable to write on the sd card ");
-        }
-
-        // Checks whether path exists
-        if (path.exists()) {
-            FilenameFilter filter = new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String filename) {
-                    File sel = new File(dir, filename);
-                    // Filters based on whether the file is hidden or not
-                    return (sel.isFile() || sel.isDirectory())
-                            && !sel.isHidden();
-
-                }
-            };
-
-            String[] fList = path.list(filter);
-//            fileList = new ArrayList<>(fList.length);
-            for (int i = 0; i < fList.length; i++) {
-                fileList.add(i, new Item(fList[i], R.mipmap.file));
-                // Convert into file path
-                File sel = new File(path, fList[i]);
-
-                // Set drawables
-                if (sel.isDirectory()) {
-                    fileList.get(i).icon = R.mipmap.folder_empty;
-                    fileList.get(i).type = FileType.FOLDER;
-                    Log.d("DIRECTORY", fileList.get(i).file);
-                } else {
-                    Log.d("FILE", fileList.get(i).file);
-//                    fileList.get(i).setThumbnail(getThumbnail(sel.getAbsolutePath()));
-                }
-            }
-
-//            if (!firstLevel) {
-//                /**
-//                 * this indicates its not the first level so we show up button
-//                 */
-//                fileList.add(0, new Item("Up", R.drawable.directory_up));
+//    private List<Item> loadFileList() {
+//        try {
+//            path.mkdirs();
+//        } catch (SecurityException e) {
+//            Log.e(TAG, "unable to write on the sd card ");
+//        }
+//
+//        // Checks whether path exists
+//        if (path.exists()) {
+//            FilenameFilter filter = new FilenameFilter() {
+//                @Override
+//                public boolean accept(File dir, String filename) {
+//                    File sel = new File(dir, filename);
+//                    // Filters based on whether the file is hidden or not
+//                    return (sel.isFile() || sel.isDirectory())
+//                            && !sel.isHidden();
+//
+//                }
+//            };
+//
+//            String[] fList = path.list(filter);
+////            fileList = new ArrayList<>(fList.length);
+//            for (int i = 0; i < fList.length; i++) {
+//                fileList.add(i, new Item(fList[i], R.mipmap.file));
+//                // Convert into file path
+//                File sel = new File(path, fList[i]);
+//
+//                // Set drawables
+//                if (sel.isDirectory()) {
+//                    fileList.get(i).icon = R.mipmap.folder_empty;
+//                    fileList.get(i).type = FileType.FOLDER;
+//                    Log.d("DIRECTORY", fileList.get(i).file);
+//                } else {
+//                    Log.d("FILE", fileList.get(i).file);
+////                    fileList.get(i).setThumbnail(getThumbnail(sel.getAbsolutePath()));
+//                }
 //            }
-        } else {
-            Log.e(TAG, "path does not exist");
-        }
-        return fileList;
-    }
+//
+////            if (!firstLevel) {
+////                /**
+////                 * this indicates its not the first level so we show up button
+////                 */
+////                fileList.add(0, new Item("Up", R.drawable.directory_up));
+////            }
+//        } else {
+//            Log.e(TAG, "path does not exist");
+//        }
+//        return fileList;
+//    }
 
     public void onClick(int which) {
         String chosenFile = fileList.get(which).file;
@@ -216,9 +239,8 @@ public class FileActivity extends AppCompatActivity {
             fileList.clear();
             path = new File(sel + "");
 
-            loadFileList();
+            presenter.loadFileList(path, fileList);
             updateList();
-            Log.d(TAG, path.getAbsolutePath());
         }
         // File picked
         else {
@@ -261,9 +283,8 @@ public class FileActivity extends AppCompatActivity {
         if (str.isEmpty()) {
             firstLevel = true;
         }
-        loadFileList();
+        presenter.loadFileList(path, fileList);
         updateList();
-        Log.d(TAG, path.getAbsolutePath());
     }
 
     private String fileExt(String url) {
@@ -294,6 +315,7 @@ public class FileActivity extends AppCompatActivity {
             gotoPrevDirectory();
         else {
             if (doubleBackToExitPressedOnce) {
+                isReady = false;
                 super.onBackPressed();
                 return;
             }
@@ -310,13 +332,15 @@ public class FileActivity extends AppCompatActivity {
         }
     }
 
-    private Bitmap getThumbnail(String imagePath) {
-        try {
-            return ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath),
-                    THUMBSIZE, THUMBSIZE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    @Override
+    public void update(List<?> list, File currentPath) {
+        fileList = (List<Item>)list;
+        path = currentPath;
+        updateList();
+    }
+
+    @Override
+    public boolean isReady() {
+        return isReady;
     }
 }
