@@ -36,6 +36,7 @@ import java.util.List;
 
 public class FileActivity extends AppCompatActivity implements FilePresenter.View{
 
+    Toolbar topToolBar;
     private GridLayoutManager gridLayoutManager;
     private LinearLayoutManager linearLayoutManager;
     /**
@@ -73,13 +74,18 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
     boolean isReady = false;
     FilePresenter presenter;
 
+    /**
+     * indicates whether files are in selection mode.
+     */
+    boolean selectionMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file);
         isReady = true;
 
-        Toolbar topToolBar = (Toolbar) findViewById(R.id.toolbar);
+        topToolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(topToolBar);
 //        topToolBar.setLogo(R.drawable.logo);
         getSupportActionBar().setTitle(title);
@@ -112,6 +118,9 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
             @Override
             public void onLongItemClick(View view, int position) {
                 // do whatever
+                selectionMode = true;
+                topToolBar.setBackgroundColor(FileActivity.this.getResources().getColor(R.color.dark_gray));
+                toggleSelection(position);
             }
         }));
     }
@@ -178,94 +187,56 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
         return super.onPrepareOptionsMenu(menu);
     }
 
-//    private List<Item> loadFileList() {
-//        try {
-//            path.mkdirs();
-//        } catch (SecurityException e) {
-//            Log.e(TAG, "unable to write on the sd card ");
-//        }
-//
-//        // Checks whether path exists
-//        if (path.exists()) {
-//            FilenameFilter filter = new FilenameFilter() {
-//                @Override
-//                public boolean accept(File dir, String filename) {
-//                    File sel = new File(dir, filename);
-//                    // Filters based on whether the file is hidden or not
-//                    return (sel.isFile() || sel.isDirectory())
-//                            && !sel.isHidden();
-//
-//                }
-//            };
-//
-//            String[] fList = path.list(filter);
-////            fileList = new ArrayList<>(fList.length);
-//            for (int i = 0; i < fList.length; i++) {
-//                fileList.add(i, new Item(fList[i], R.mipmap.file));
-//                // Convert into file path
-//                File sel = new File(path, fList[i]);
-//
-//                // Set drawables
-//                if (sel.isDirectory()) {
-//                    fileList.get(i).icon = R.mipmap.folder_empty;
-//                    fileList.get(i).type = FileType.FOLDER;
-//                    Log.d("DIRECTORY", fileList.get(i).file);
-//                } else {
-//                    Log.d("FILE", fileList.get(i).file);
-////                    fileList.get(i).setThumbnail(getThumbnail(sel.getAbsolutePath()));
-//                }
-//            }
-//
-////            if (!firstLevel) {
-////                /**
-////                 * this indicates its not the first level so we show up button
-////                 */
-////                fileList.add(0, new Item("Up", R.drawable.directory_up));
-////            }
-//        } else {
-//            Log.e(TAG, "path does not exist");
-//        }
-//        return fileList;
-//    }
+    public void onClick(int position) {
+        /**
+         * if in selection mode, we do not process onClick()
+         */
+        if(selectionMode){
+            toggleSelection(position);
+        }else {
+            String chosenFile = fileList.get(position).file;
+            File sel = new File(path + "/" + chosenFile);
+            if (sel.isDirectory()) {
+                firstLevel = false;
 
-    public void onClick(int which) {
-        String chosenFile = fileList.get(which).file;
-        File sel = new File(path + "/" + chosenFile);
-        if (sel.isDirectory()) {
-            firstLevel = false;
+                // Adds chosen directory to list
+                str.add(chosenFile);
+                fileList.clear();
+                path = new File(sel + "");
 
-            // Adds chosen directory to list
-            str.add(chosenFile);
-            fileList.clear();
-            path = new File(sel + "");
-
-            presenter.loadFileList(path, fileList);
-            updateList();
-        }
-        // File picked
-        else {
-            // Perform action with file picked
-
-            MimeTypeMap myMime = MimeTypeMap.getSingleton();
-            Intent newIntent = new Intent(Intent.ACTION_VIEW);
-            String mimeType = myMime.getMimeTypeFromExtension(fileExt(sel.getAbsolutePath()));
-            /**
-             * following line commented since If your targetSdkVersion is 24 or higher, we have to use FileProvider
-             * class to give access to the particular file or folder to make them accessible for other apps.
-             * and add extra flag "FLAG_GRANT_READ_URI_PERMISSION".
-             */
-//            newIntent.setDataAndType(Uri.fromFile(sel), mimeType);
-            Uri photoURI = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", sel.getAbsoluteFile());
-            newIntent.setDataAndType(photoURI, mimeType);
-            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            newIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            try {
-                startActivity(newIntent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(this, "No handler for this type of file.", Toast.LENGTH_LONG).show();
+                presenter.loadFileList(path, fileList);
+                updateList();
             }
+            // File picked
+            else {
+                // Perform action with file picked
 
+                MimeTypeMap myMime = MimeTypeMap.getSingleton();
+                Intent newIntent = new Intent(Intent.ACTION_VIEW);
+                String mimeType = myMime.getMimeTypeFromExtension(fileExt(sel.getAbsolutePath()));
+                /**
+                 * following line commented since If your targetSdkVersion is 24 or higher, we have to use FileProvider
+                 * class to give access to the particular file or folder to make them accessible for other apps.
+                 * and add extra flag "FLAG_GRANT_READ_URI_PERMISSION".
+                 */
+//            newIntent.setDataAndType(Uri.fromFile(sel), mimeType);
+                Uri photoURI = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".provider", sel.getAbsoluteFile());
+                newIntent.setDataAndType(photoURI, mimeType);
+                newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                newIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try {
+                    startActivity(newIntent);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(this, "No handler for this type of file.", Toast.LENGTH_LONG).show();
+                }
+            }
         }
+    }
+
+    public void toggleSelection(int position){
+        Item file = fileList.get(position);
+        file.setSelected(!file.isSelected());
+        rcAdapter.notifyDataSetChanged();
     }
 
     private void gotoPrevDirectory() {
@@ -306,29 +277,45 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
         }
     }
 
+    public void clearList(){
+        for (Item item: fileList) {
+            item.setSelected(false);
+        }
+        rcAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onBackPressed() {
         /**
-         * if its not the first level then 0th position is up button
+         * on back press clear selection mode first if is in
          */
-        if (!firstLevel)
-            gotoPrevDirectory();
-        else {
-            if (doubleBackToExitPressedOnce) {
-                isReady = false;
-                super.onBackPressed();
-                return;
-            }
-            this.doubleBackToExitPressedOnce = true;
-            ToastUtil.showShortToast(this, "Please click back again to exit");
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    doubleBackToExitPressedOnce = false;
+        if(selectionMode){
+            selectionMode = false;
+            topToolBar.setBackgroundColor(FileActivity.this.getResources().getColor(R.color.color_primary));
+            clearList();
+        }else {
+            /**
+             * if its not the first level then 0th position is up button
+             */
+            if (!firstLevel)
+                gotoPrevDirectory();
+            else {
+                if (doubleBackToExitPressedOnce) {
+                    isReady = false;
+                    super.onBackPressed();
+                    return;
                 }
-            }, 2000);
+                this.doubleBackToExitPressedOnce = true;
+                ToastUtil.showShortToast(this, "Please click back again to exit");
 
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        doubleBackToExitPressedOnce = false;
+                    }
+                }, 2000);
+
+            }
         }
     }
 

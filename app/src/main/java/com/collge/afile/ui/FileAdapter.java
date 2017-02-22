@@ -38,6 +38,12 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
     @Override
     public void onBindViewHolder(FileViewHolders holder, int position) {
         Item item = itemList.get(position);
+
+        if(item.isSelected())
+            holder.parent.setBackgroundColor(context.getResources().getColor(R.color.gray));
+        else
+            holder.parent.setBackgroundColor(context.getResources().getColor(R.color.white));
+
         holder.countryName.setText(item.getFile().trim());
         String path =  ((FileActivity) context).getPath() + File.separator + item.getFile();
         if(item.getType() == FileType.FOLDER)

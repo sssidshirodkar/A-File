@@ -32,4 +32,12 @@ public class Item {
     public void setType(int type) {
         this.type = type;
     }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
 }
