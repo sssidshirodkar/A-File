@@ -14,14 +14,14 @@ public class Item {
      * 1 : File
      */
     public int type = 1;
+    boolean isSelected = false;
 
     public Item(String file, Integer icon) {
         this.file = file;
         this.icon = icon;
     }
 
-    @Override
-    public String toString() {
+    public String getFile() {
         return file;
     }
 

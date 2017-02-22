@@ -38,8 +38,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
     @Override
     public void onBindViewHolder(FileViewHolders holder, int position) {
         Item item = itemList.get(position);
-        holder.countryName.setText(item.toString().trim());
-        String path =  ((FileActivity) context).getPath() + File.separator + item.toString();
+        holder.countryName.setText(item.getFile().trim());
+        String path =  ((FileActivity) context).getPath() + File.separator + item.getFile();
         if(item.getType() == FileType.FOLDER)
             ImageLoader.getInstance().loadImage(R.mipmap.folder_empty, holder.countryPhoto);
         else
