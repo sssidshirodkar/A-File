@@ -18,11 +18,15 @@ public class FilePresenter implements Presenter {
 
     View view;
     File currentPath;
+    boolean firstLevel;
 
     public void setView(View view) {
         this.view = view;
     }
 
+    public void setLevel(boolean firstLevel) {
+        this.firstLevel = firstLevel;
+    }
 
     @Override
     public void onLoad() {
@@ -41,13 +45,14 @@ public class FilePresenter implements Presenter {
 
     @Override
     public void update(List<?> list, File path) {
-        if (view.isReady())
+        if (view != null && view.isReady())
             view.update(list, path);
     }
 
     public void loadFileList(File path, List<Item> fileList) {
         currentPath = path;
         FileInteractor fileInteractor = new FileInteractor(path, fileList);
+        fileInteractor.setLevel(firstLevel);
         fileInteractor.setCallback(new Callback() {
             @Override
             public void onSuccess(final Object object) {

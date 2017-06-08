@@ -15,6 +15,7 @@ public class Item {
      */
     public int type = 1;
     boolean isSelected = false;
+    String size;
 
     public Item(String file, Integer icon) {
         this.file = file;
@@ -39,5 +40,13 @@ public class Item {
 
     public void setSelected(boolean selected) {
         isSelected = selected;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 }

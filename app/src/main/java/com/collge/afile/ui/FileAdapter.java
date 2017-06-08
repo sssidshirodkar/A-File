@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.collge.afile.R;
 import com.collge.afile.pojo.Item;
 import com.collge.afile.util.FileType;
+import com.collge.afile.util.FileUtil;
 import com.collge.afile.util.ImageLoader;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
 
     private List<Item> itemList;
     private Context context;
+    boolean layoutType;
 
     public FileAdapter(Context context, List<Item> itemList) {
         this.itemList = itemList;
@@ -28,7 +30,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
     @Override
     public FileViewHolders onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        int layout = ((FileActivity) context).isViewManagerType() ? R.layout.layout_list_view : R.layout.layout_grid_view;
+        /**
+         * @layoutType
+         * true : list view
+         * false : grid view
+         */
+        layoutType = ((FileActivity) context).isViewManagerType();
+
+        int layout = (layoutType ? R.layout.layout_list_view : R.layout.layout_grid_view );
 
         View layoutView = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         FileViewHolders rcv = new FileViewHolders(layoutView);
@@ -45,7 +54,13 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolders> {
             holder.parent.setBackgroundColor(context.getResources().getColor(R.color.white));
 
         holder.countryName.setText(item.getFile().trim());
+
         String path =  ((FileActivity) context).getPath() + File.separator + item.getFile();
+
+        if(layoutType){
+//            FileUtil.calculateSizeOfFile(path);
+        }
+
         if(item.getType() == FileType.FOLDER)
             ImageLoader.getInstance().loadImage(R.mipmap.folder_empty, holder.countryPhoto);
         else

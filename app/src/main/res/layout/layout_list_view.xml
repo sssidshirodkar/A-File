@@ -22,13 +22,18 @@
             android:gravity="center"
             android:src="@mipmap/folder_empty" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/country_photo"
+            android:layout_toEndOf="@+id/country_photo"
+            android:orientation="vertical">
+
         <TextView
             android:id="@+id/country_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_toRightOf="@+id/country_photo"
-            android:layout_toEndOf="@+id/country_photo"
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="1"
@@ -36,6 +41,21 @@
             android:text="@string/default_text"
             android:textColor="@color/black"
             android:textSize="@dimen/title_font_size" />
+
+            <TextView
+                android:id="@+id/file_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="8dp"
+                android:text="@string/file_size"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sub_title_font_size" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 

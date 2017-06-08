@@ -4,5 +4,7 @@
     <string name="action_refresh">Settings</string>
     <string name="action_new">Settings</string>
     <string name="logo_desc">App logo</string>
+
     <string name="default_text">folder</string>
+    <string name="file_size">0 B</string>
 </resources>

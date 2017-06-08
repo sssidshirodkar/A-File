@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.collge.afile.R;
 import com.collge.afile.presenter.FilePresenter;
 import com.collge.afile.util.FileType;
+import com.collge.afile.util.StorageUtil;
 import com.collge.afile.util.ToastUtil;
 import com.collge.afile.pojo.Item;
 
@@ -97,6 +98,7 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
 
         presenter = new FilePresenter();
         presenter.setView(this);
+        presenter.setLevel(firstLevel);
         presenter.loadFileList(path, fileList);
 
         gridLayoutManager = new GridLayoutManager(FileActivity.this, 3);
@@ -195,7 +197,7 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
             toggleSelection(position);
         }else {
             String chosenFile = fileList.get(position).file;
-            File sel = new File(path + "/" + chosenFile);
+            File sel = firstLevel ? new File(chosenFile) : new File(path + "/" + chosenFile);
             if (sel.isDirectory()) {
                 firstLevel = false;
 
@@ -204,6 +206,7 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
                 fileList.clear();
                 path = new File(sel + "");
 
+                presenter.setLevel(firstLevel);
                 presenter.loadFileList(path, fileList);
                 updateList();
             }
@@ -224,11 +227,10 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
                 newIntent.setDataAndType(photoURI, mimeType);
                 newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 newIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                try {
+                if(newIntent.resolveActivity(getPackageManager()) != null)
                     startActivity(newIntent);
-                } catch (ActivityNotFoundException e) {
+                else
                     Toast.makeText(this, "No handler for this type of file.", Toast.LENGTH_LONG).show();
-                }
             }
         }
     }
@@ -245,8 +247,10 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
         String s = str.remove(str.size() - 1);
 
         // path modified to exclude present directory
-        path = new File(path.toString().substring(0,
-                path.toString().lastIndexOf(s)));
+        if(!s.contains(path.getAbsolutePath())) { // this check is done to avid conflict when 'str' array list is made empty and nothing available to make new file Path
+            path = new File(path.toString().substring(0,
+                    path.toString().lastIndexOf(s)));
+        }
         fileList.clear();
 
         // if there are no more directories in the list, then
@@ -254,6 +258,7 @@ public class FileActivity extends AppCompatActivity implements FilePresenter.Vie
         if (str.isEmpty()) {
             firstLevel = true;
         }
+        presenter.setLevel(firstLevel);
         presenter.loadFileList(path, fileList);
         updateList();
     }
